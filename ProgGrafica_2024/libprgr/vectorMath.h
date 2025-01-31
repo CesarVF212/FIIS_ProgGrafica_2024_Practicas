@@ -33,13 +33,18 @@ namespace libPRGR {
 
 	} matrix4x4f;
 	//------------------------------------------------------
-	
+	inline matrix4x4f operator*(matrix4x4f m1, matrix4x4f m2);
 
 	
 
 	inline std::ostream& operator<<(std::ostream& os, vector4f v) {
 		os << "{" << v.data[0] << "," << v.data[1] << "," <<
 			v.data[2] << "," << v.data[3] << "}\n";
+		return os;
+	}
+
+	inline std::ostream& operator<<(std::ostream& os, matrix4x4f m) {
+		os << m.rows[0] << m.rows[1] << m.rows[2] << m.rows[3] << "\n";
 		return os;
 	}
 
@@ -74,14 +79,14 @@ namespace libPRGR {
 
 	// Resta de vectores
 	inline vector4f operator-(vector4f v1, vector4f v2) {
-		vector4f vectorRes = { v1.x - v2.x, v1.y - v2.y, v1.z - v2.z, 1 };
+		vector4f vectorRes = { v1.x - v2.x, v1.y - v2.y, v1.z - v2.z, 1};
 		return vectorRes;
 	}
 
 	// Multiplicacion escalar (dot product)
 	inline float operator*(vector4f v1, vector4f v2) {
 		float res = 0;
-		res = v1.x * v2.x + v1.y * v2.y + v1.z * v2.z + v1.w * v2.w;
+		res = v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 		return res;
 	}
 
@@ -127,6 +132,9 @@ namespace libPRGR {
 
 	// Metodo que crea una matriz de rotacion de N radianes en X, Y, Z respectivamente
 	inline matrix4x4f make_rotate(float angleX, float angleY, float angleZ) {
+		angleX = toRadians(angleX);
+		angleY = toRadians(angleY);
+		angleZ = toRadians(angleZ);
 		matrix4x4f matrixResX = {
 			.rows = {
 				{1,0,0,0},
@@ -135,6 +143,8 @@ namespace libPRGR {
 				{0,0,0,1}
 			}
 		};
+		cout << "MATRIZ DE ROTACION EN X: " << endl;
+		cout << matrixResX << endl;
 
 		matrix4x4f matrixResY = {
 			.rows = {
@@ -144,6 +154,8 @@ namespace libPRGR {
 				{0,0,0,1}
 			}
 		};
+		cout << "MATRIZ DE ROTACION EN Y: " << endl;
+		cout << matrixResY << endl;
 
 		matrix4x4f matrixResZ = {
 			.rows = {
@@ -153,13 +165,11 @@ namespace libPRGR {
 				{0,0,0,1}
 			}
 		};
+		cout << "MATRIZ DE ROTACION EN Z: " << endl;
+		cout << matrixResZ << endl;
 
 		matrix4x4f matrixRes = make_identity();
-		for (int i = 0; i < 4; i++) {
-			for (int j = 0; j < 4; j++) {
-				matrixRes.mat2D[i][j] = matrixResX.mat2D[i][j] * matrixResY.mat2D[i][j] * matrixResZ.mat2D[i][j];
-			}
-		}
+		matrixRes = matrixResX * matrixResY * matrixResZ;
 		return matrixRes;
 	}
 
@@ -192,12 +202,16 @@ namespace libPRGR {
 
 	//Multiplicacion matriz-vector
 	inline vector4f operator*(matrix4x4f m, vector4f v) {
-		vector4f vectorRes = { 0,0,0,0 };
-		for (int j = 0; j < 4; j++) {
-			vectorRes.data[j] = m.rows[j] * v;
+		vector4f res{};
+		for (int i = 0; i < 4; i++) {
+			res.data[i] = 0;
+			for (int j = 0; j < 4; j++) {
+				res.data[i] += m.mat2D[i][j] * v.data[j];
+			}
 		}
-		return vectorRes;
+		return res;
 	}
+
 
 	//Multiplicacion escalar-matriz
 	inline matrix4x4f operator*(float s, matrix4x4f m) {
