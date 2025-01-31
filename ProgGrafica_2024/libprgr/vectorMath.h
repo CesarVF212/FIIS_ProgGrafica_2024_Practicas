@@ -194,7 +194,10 @@ namespace libPRGR {
 		matrix4x4f matrixRes = make_identity();
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
-				matrixRes.mat2D[i][j] = m1.rows[i] * m2.rows[j];
+				matrixRes.mat2D[i][j] = 0;
+				for (int k = 0; k < 4; k++) {
+					matrixRes.mat2D[i][j] += m1.mat2D[i][k] * m2.mat2D[k][j];
+				}
 			}
 		}
 		return matrixRes;

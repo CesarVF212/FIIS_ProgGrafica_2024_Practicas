@@ -134,9 +134,9 @@ int main(int argc, char** argv)
 	cout << "--------------------CREACION DE MATRICES--------------------" << endl;
 	cout << "------------------------------------------------------------" << endl;
 
-	matrix4x4f m1 = make_identity();
+	matrix4x4f m = make_identity();
 	cout << "Matriz identidad: " << endl;
-	cout << m1 << endl;
+	cout << m << endl;
 
 	cout << "--------------------MATRIZ DE TRASLACION--------------------" << endl;
 	matrix4x4f mTras = make_translate(1, 2, 3);
@@ -147,5 +147,28 @@ int main(int argc, char** argv)
 	matrix4x4f mRot = make_rotate(45, 90, 0);
 	cout << "Matriz de rotacion en 45,90,0: " << endl;
 	cout << mRot << endl;
+
+	cout << "--------------------MATRIZ DE ESCALADO--------------------" << endl;
+	matrix4x4f mScale = make_scale(5, 4, 3);
+	cout << "Matriz de escalado en 2,2,2: " << endl;
+	cout << mScale << endl;
+
+	cout << "------------------------------------------------------------" << endl;
+	cout << "--------------------OPERACION DE MATRICES--------------------" << endl;
+	cout << "------------------------------------------------------------" << endl; 
+
+	cout << "--------------------MULTIPLICACION DE MATRICES--------------------" << endl;
+	matrix4x4f m1 = make_scale(2, 3, 5);
+	matrix4x4f m2 = make_scale(1, 2, 3);
+
+	matrix4x4f mMult = m1 * m2;
+	cout << "Matriz 1: " << endl;
+	cout << m1 << endl;
+	cout << "Matriz 2: " << endl;
+	cout << m2 << endl;
+	cout << "Matriz multiplicada: " << endl;
+	cout << mMult << endl;
+
+
 
 }
