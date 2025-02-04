@@ -103,7 +103,7 @@ namespace libPRGR {
 
 	// METODOS SOBRE ESTRUCTURAS DE TIPO MATRIX4X4F
 	// ------------------------------------------------
-	
+	inline vector4f operator*(matrix4x4f m, vector4f v);
 	// Metodo de creacion de matrices de tipo identidad
 	inline matrix4x4f make_identity() {
 		matrix4x4f matrixRes = {
@@ -227,6 +227,16 @@ namespace libPRGR {
 		return matrixRes;
 	}
 
+	inline matrix4x4f operator/(matrix4x4f m, float s) {
+		matrix4x4f matrixRes = make_identity();
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				matrixRes.mat2D[i][j] = m.mat2D[i][j] / s;
+			}
+		}
+		return matrixRes;
+	}
+
 	// Suma de matrices
 	inline matrix4x4f operator+(matrix4x4f m1, matrix4x4f m2) {
 		matrix4x4f matrixRes = make_identity();
@@ -262,13 +272,215 @@ namespace libPRGR {
 	}
 	
 	// Inversa
-	//TODO
+
+	inline float determinant3x3(float mat[3][3]) {
+		return mat[0][0] * (mat[1][1] * mat[2][2] - mat[1][2] * mat[2][1])
+			- mat[0][1] * (mat[1][0] * mat[2][2] - mat[1][2] * mat[2][0])
+			+ mat[0][2] * (mat[1][0] * mat[2][1] - mat[1][1] * mat[2][0]);
+	}
+
+	inline float determinant(matrix4x4f m) {
+		// Elementos de la primera fila
+		float a11 = m.mat1[0];  // m.mat2D[0][0]
+		float a12 = m.mat1[1];  // m.mat2D[0][1]
+		float a13 = m.mat1[2];  // m.mat2D[0][2]
+		float a14 = m.mat1[3];  // m.mat2D[0][3]
+
+		// Cofactores de la primera fila
+		float C11 = m.mat1[5] * (m.mat1[10] * m.mat1[15] - m.mat1[11] * m.mat1[14])
+			- m.mat1[6] * (m.mat1[9] * m.mat1[15] - m.mat1[11] * m.mat1[13])
+			+ m.mat1[7] * (m.mat1[9] * m.mat1[14] - m.mat1[10] * m.mat1[13]);
+
+		float C12 = m.mat1[4] * (m.mat1[10] * m.mat1[15] - m.mat1[11] * m.mat1[14])
+			- m.mat1[6] * (m.mat1[8] * m.mat1[15] - m.mat1[11] * m.mat1[12])
+			+ m.mat1[7] * (m.mat1[8] * m.mat1[14] - m.mat1[10] * m.mat1[12]);
+
+		float C13 = m.mat1[4] * (m.mat1[9] * m.mat1[15] - m.mat1[11] * m.mat1[13])
+			- m.mat1[5] * (m.mat1[8] * m.mat1[15] - m.mat1[11] * m.mat1[12])
+			+ m.mat1[7] * (m.mat1[8] * m.mat1[13] - m.mat1[9] * m.mat1[12]);
+
+		float C14 = m.mat1[4] * (m.mat1[9] * m.mat1[14] - m.mat1[10] * m.mat1[13])
+			- m.mat1[5] * (m.mat1[8] * m.mat1[14] - m.mat1[10] * m.mat1[12])
+			+ m.mat1[6] * (m.mat1[8] * m.mat1[13] - m.mat1[9] * m.mat1[12]);
+
+		// Cálculo del determinante
+		float det = a11 * C11 - a12 * C12 + a13 * C13 - a14 * C14;
+		return det;
+	}
+
+	inline matrix4x4f inverse(matrix4x4f m) {
+		// Calcular el determinante
+		float det = determinant(m);
+
+		// Si el determinante es cero, la matriz no tiene inversa
+		if (det == 0) {
+			cout << "Advertencia: La matriz no tiene inversa." << endl;
+			return make_identity();
+		}
+
+		// Calcular la matriz de cofactores
+		matrix4x4f cofactors;
+
+		// Cofactor para cada elemento
+		cofactors.mat1[0] = +(m.mat1[5] * (m.mat1[10] * m.mat1[15] - m.mat1[11] * m.mat1[14])
+			- m.mat1[6] * (m.mat1[9] * m.mat1[15] - m.mat1[11] * m.mat1[13])
+			+ m.mat1[7] * (m.mat1[9] * m.mat1[14] - m.mat1[10] * m.mat1[13]));
+
+		cofactors.mat1[1] = -(m.mat1[4] * (m.mat1[10] * m.mat1[15] - m.mat1[11] * m.mat1[14])
+			- m.mat1[6] * (m.mat1[8] * m.mat1[15] - m.mat1[11] * m.mat1[12])
+			+ m.mat1[7] * (m.mat1[8] * m.mat1[14] - m.mat1[10] * m.mat1[12]));
+
+		cofactors.mat1[2] = +(m.mat1[4] * (m.mat1[9] * m.mat1[15] - m.mat1[11] * m.mat1[13])
+			- m.mat1[5] * (m.mat1[8] * m.mat1[15] - m.mat1[11] * m.mat1[12])
+			+ m.mat1[7] * (m.mat1[8] * m.mat1[13] - m.mat1[9] * m.mat1[12]));
+
+		cofactors.mat1[3] = -(m.mat1[4] * (m.mat1[9] * m.mat1[14] - m.mat1[10] * m.mat1[13])
+			- m.mat1[5] * (m.mat1[8] * m.mat1[14] - m.mat1[10] * m.mat1[12])
+			+ m.mat1[6] * (m.mat1[8] * m.mat1[13] - m.mat1[9] * m.mat1[12]));
+
+		cofactors.mat1[4] = -(m.mat1[1] * (m.mat1[10] * m.mat1[15] - m.mat1[11] * m.mat1[14])
+			- m.mat1[2] * (m.mat1[9] * m.mat1[15] - m.mat1[11] * m.mat1[13])
+			+ m.mat1[3] * (m.mat1[9] * m.mat1[14] - m.mat1[10] * m.mat1[13]));
+
+		cofactors.mat1[5] = +(m.mat1[0] * (m.mat1[10] * m.mat1[15] - m.mat1[11] * m.mat1[14])
+			- m.mat1[2] * (m.mat1[8] * m.mat1[15] - m.mat1[11] * m.mat1[12])
+			+ m.mat1[3] * (m.mat1[8] * m.mat1[14] - m.mat1[10] * m.mat1[12]));
+
+		cofactors.mat1[6] = -(m.mat1[0] * (m.mat1[9] * m.mat1[15] - m.mat1[11] * m.mat1[13])
+			- m.mat1[1] * (m.mat1[8] * m.mat1[15] - m.mat1[11] * m.mat1[12])
+			+ m.mat1[3] * (m.mat1[8] * m.mat1[13] - m.mat1[9] * m.mat1[12]));
+
+		cofactors.mat1[7] = +(m.mat1[0] * (m.mat1[9] * m.mat1[14] - m.mat1[10] * m.mat1[13])
+			- m.mat1[1] * (m.mat1[8] * m.mat1[14] - m.mat1[10] * m.mat1[12])
+			+ m.mat1[2] * (m.mat1[8] * m.mat1[13] - m.mat1[9] * m.mat1[12]));
+
+		cofactors.mat1[8] = +(m.mat1[1] * (m.mat1[6] * m.mat1[15] - m.mat1[7] * m.mat1[14])
+			- m.mat1[2] * (m.mat1[5] * m.mat1[15] - m.mat1[7] * m.mat1[13])
+			+ m.mat1[3] * (m.mat1[5] * m.mat1[14] - m.mat1[6] * m.mat1[13]));
+
+		cofactors.mat1[9] = -(m.mat1[0] * (m.mat1[6] * m.mat1[15] - m.mat1[7] * m.mat1[14])
+			- m.mat1[2] * (m.mat1[4] * m.mat1[15] - m.mat1[7] * m.mat1[12])
+			+ m.mat1[3] * (m.mat1[4] * m.mat1[14] - m.mat1[6] * m.mat1[12]));
+
+		cofactors.mat1[10] = +(m.mat1[0] * (m.mat1[5] * m.mat1[15] - m.mat1[7] * m.mat1[13])
+			- m.mat1[1] * (m.mat1[4] * m.mat1[15] - m.mat1[7] * m.mat1[12])
+			+ m.mat1[3] * (m.mat1[4] * m.mat1[13] - m.mat1[5] * m.mat1[12]));
+
+		cofactors.mat1[11] = -(m.mat1[0] * (m.mat1[5] * m.mat1[14] - m.mat1[6] * m.mat1[13])
+			- m.mat1[1] * (m.mat1[4] * m.mat1[14] - m.mat1[6] * m.mat1[12])
+			+ m.mat1[2] * (m.mat1[4] * m.mat1[13] - m.mat1[5] * m.mat1[12]));
+
+		cofactors.mat1[12] = -(m.mat1[1] * (m.mat1[6] * m.mat1[11] - m.mat1[7] * m.mat1[10])
+			- m.mat1[2] * (m.mat1[5] * m.mat1[11] - m.mat1[7] * m.mat1[9])
+			+ m.mat1[3] * (m.mat1[5] * m.mat1[10] - m.mat1[6] * m.mat1[9]));
+
+		cofactors.mat1[13] = +(m.mat1[0] * (m.mat1[6] * m.mat1[11] - m.mat1[7] * m.mat1[10])
+			- m.mat1[2] * (m.mat1[4] * m.mat1[11] - m.mat1[7] * m.mat1[8])
+			+ m.mat1[3] * (m.mat1[4] * m.mat1[10] - m.mat1[6] * m.mat1[8]));
+
+		cofactors.mat1[14] = -(m.mat1[0] * (m.mat1[5] * m.mat1[11] - m.mat1[7] * m.mat1[9])
+			- m.mat1[1] * (m.mat1[4] * m.mat1[11] - m.mat1[7] * m.mat1[8])
+			+ m.mat1[3] * (m.mat1[4] * m.mat1[9] - m.mat1[5] * m.mat1[8]));
+
+		cofactors.mat1[15] = +(m.mat1[0] * (m.mat1[5] * m.mat1[10] - m.mat1[6] * m.mat1[9])
+			- m.mat1[1] * (m.mat1[4] * m.mat1[10] - m.mat1[6] * m.mat1[8])
+			+ m.mat1[2] * (m.mat1[4] * m.mat1[9] - m.mat1[5] * m.mat1[8]));
+
+		// Transponer la matriz de cofactores para obtener la adjunta
+		matrix4x4f adjugate;
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				adjugate.mat2D[i][j] = cofactors.mat2D[j][i];
+			}
+		}
+
+		// Dividir cada elemento de la adjunta por el determinante
+		matrix4x4f inverseMatrix;
+		for (int i = 0; i < 16; i++) {
+			inverseMatrix.mat1[i] = adjugate.mat1[i] / det;
+		}
+
+		return inverseMatrix;
+	}
+
+	// ------------------------------------------------
+	// CUATERNIONES
+	// ------------------------------------------------
+
+	inline vector4f make_quaternion(float x, float y, float z, float angle) {
+		vector4f quaternion = {};
+
+		// Normalizamos el eje de rotación
+		float length = sqrt(x * x + y * y + z * z);
+		if (length == 0) {
+			return { 0, 0, 0, 1 };
+		}
+		x /= length;
+		y /= length;
+		z /= length;
+
+		// Convertimos el ángulo a radianes
+		angle = toRadians(angle);
+
+		// Calculamos el cuaternión
+		float halfAngle = angle / 2;
+		float sinHalfAngle = sin(halfAngle);
+		quaternion.x = x * sinHalfAngle;
+		quaternion.y = y * sinHalfAngle;
+		quaternion.z = z * sinHalfAngle;
+		quaternion.w = cos(halfAngle);
+
+		return quaternion;
+	}
+
+	inline matrix4x4f make_rotate(vector4f quaternion) {
+		// Normalizamos el cuaternión
+		float length = sqrt(quaternion.x * quaternion.x + quaternion.y * quaternion.y +
+			quaternion.z * quaternion.z + quaternion.w * quaternion.w);
+		if (length == 0) {
+			// Si el cuaternión es cero, devolvemos la matriz identidad
+			return make_identity();
+		}
+		quaternion.x /= length;
+		quaternion.y /= length;
+		quaternion.z /= length;
+		quaternion.w /= length;
+
+		// Construimos la matriz de rotación a partir del cuaternión
+		matrix4x4f matrix = make_identity();
+
+		float x = quaternion.x;
+		float y = quaternion.y;
+		float z = quaternion.z;
+		float w = quaternion.w;
+
+		matrix.mat1[0] = 1 - 2 * (y * y + z * z);
+		matrix.mat1[1] = 2 * (x * y - z * w);
+		matrix.mat1[2] = 2 * (x * z + y * w);
+		matrix.mat1[3] = 0;
+
+		matrix.mat1[4] = 2 * (x * y + z * w);
+		matrix.mat1[5] = 1 - 2 * (x * x + z * z);
+		matrix.mat1[6] = 2 * (y * z - x * w);
+		matrix.mat1[7] = 0;
+
+		matrix.mat1[8] = 2 * (x * z - y * w);
+		matrix.mat1[9] = 2 * (y * z + x * w);
+		matrix.mat1[10] = 1 - 2 * (x * x + y * y);
+		matrix.mat1[11] = 0;
+
+		matrix.mat1[12] = 0;
+		matrix.mat1[13] = 0;
+		matrix.mat1[14] = 0;
+		matrix.mat1[15] = 1;
+
+		return matrix;
+	}
 
 	// CLASE RENDER
 	// ------------------------------------------------
 
 	class Render {
-		// Atributos
 	private:
 		int ancho;
 		int alto;
@@ -286,32 +498,38 @@ namespace libPRGR {
 		}
 
 	public:
-		// Metodos
 		Render(int ancho, int alto) {
-			this->ancho = ancho;
-			this->alto = alto;
-			buffer[100][100] = { '0' };
-			
+			if (ancho > 100 || alto > 100) {
+				cerr << "Error: El ancho y el alto no pueden ser mayores que 100." << endl;
+				this->ancho = 100;
+				this->alto = 100;
+			}
+			else {
+				this->ancho = ancho;
+				this->alto = alto;
+			}
+			resetBuffer();
 		}
 
 		void putPixel(int x, int y) {
 			int row, column;
 			if (isInside(x, y)) {
 				cartToIndex(x, y, row, column);
-				buffer[row][column] = '1';
+				if (row >= 0 && row < alto && column >= 0 && column < ancho) {
+					buffer[row][column] = '1';
+				}
 			}
-		};
+		}
 
 		void resetBuffer() {
-			for (int i = 0; i < ancho; i++) {
-				for (int j = 0; j < alto; j++) {
+			for (int i = 0; i < alto; i++) {
+				for (int j = 0; j < ancho; j++) {
 					buffer[i][j] = '0';
 				}
 			}
 		}
 
 		void markBorders() {
-
 			for (int i = 0; i < ancho; i++) {
 				buffer[0][i] = '2';
 				buffer[alto - 1][i] = '2';
@@ -323,8 +541,8 @@ namespace libPRGR {
 		}
 
 		void draw() const {
-			for (int i = 0; i < ancho; i++) {
-				for (int j = 0; j < alto; j++) {
+			for (int i = 0; i < alto; i++) {
+				for (int j = 0; j < ancho; j++) {
 					if (buffer[i][j] == '1')
 						cout << "*";
 					else if (buffer[i][j] == '2')

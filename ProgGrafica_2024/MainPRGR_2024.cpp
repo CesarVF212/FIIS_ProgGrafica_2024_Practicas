@@ -71,37 +71,32 @@ int main(int argc, char** argv)
 
 	//COMIENZO DEL PROGRAMA
 
-	//Render render(20, 20);
+	Render render(20, 20);
 
-	//vector4f punto = { 3, 3, 0, 0 };
+	vector4f punto = { 3, 3, 0, 1 };
 
-	//cout << "punto original: " << punto << endl;
-
-
-	///*render.resetBuffer();
-	//render.markBorders();
-	//render.putPixel(punto.data[0], punto.data[1]);
-	//render.draw();*/
+	cout << "punto original: " << punto << endl;
 
 
-	//render.resetBuffer();
-	//render.markBorders();
+	render.resetBuffer();
+	render.markBorders();
+	render.putPixel(punto.data[0], punto.data[1]);
+	render.draw();
 
-	//// Traslacion del punto 6 unidades a la derecha.
 
-	//matrix4x4f matriz_tras = make_translate(6, 0, 0);
-	//cout << "Matriz de transposicion" << endl;
-	//cout << matriz_tras.rows[0] << endl;
-	//cout << matriz_tras.rows[1] << endl;
-	//cout << matriz_tras.rows[2] << endl;
-	//cout << matriz_tras.rows[3] << endl;
-	//vector4f puntoTras = { 0,0,0,0 };
-	//puntoTras = matriz_tras*punto;
+	render.resetBuffer();
+	render.markBorders();
 
-	//
-	//cout << "Punto traspuesto: " << puntoTras << endl;
-	//render.putPixel(puntoTras.data[0], puntoTras.data[1]);
-	//render.draw();
+	// Traslacion del punto 6 unidades a la derecha.
+
+	matrix4x4f matriz_tras = make_translate(3, 0, 0);
+	cout << "Matriz de transposicion" << endl;
+	cout << matriz_tras << endl;
+	punto = matriz_tras * punto;
+	cout << "Punto traspuesto: " << punto << endl;
+	render.putPixel(punto.data[0], punto.data[1]);
+	render.draw();
+
 	cout << "------------------------------------------------------------" << endl;
 	cout << "--------------------CREACION DE VECTORES--------------------" << endl;
 	cout << "------------------------------------------------------------" << endl;
@@ -168,6 +163,77 @@ int main(int argc, char** argv)
 	cout << m2 << endl;
 	cout << "Matriz multiplicada: " << endl;
 	cout << mMult << endl;
+
+	cout << "--------------------MULTIPLICACION DE MATRIZ Y VECTOR--------------------" << endl;
+	vector4f v = make_vector(1, 2, 3, 1);
+	matrix4x4f mV = make_scale(2, 3, 4);
+	vector4f vMult = mV * v;
+	cout << "Vector original: " << v << endl;
+	cout << "Matriz: " << endl;
+	cout << mV << endl;
+	cout << "Vector multiplicado: " << vMult << endl;
+
+	cout << "--------------------MULTIPICACION ESCALAR DE MATRIZ--------------------" << endl;
+	matrix4x4f mEsc = make_scale(2, 3, 4);
+	matrix4x4f mEscMult = 2 * mEsc;
+	cout << "Matriz original: " << mEsc << endl;
+	cout << "Matriz multiplicada por 2: " << mEscMult << endl;
+
+	cout << "--------------------SUMA DE MATRICES--------------------" << endl;
+	matrix4x4f mSum1 = make_scale(2, 3, 4);
+	matrix4x4f mSum2 = make_scale(1, 2, 3);
+	matrix4x4f mSum = mSum1 + mSum2;
+	cout << "Matriz 1: " << endl;
+	cout << mSum1 << endl;
+	cout << "Matriz 2: " << endl;
+	cout << mSum2 << endl;
+	cout << "Matriz suma: " << endl;
+	cout << mSum << endl;
+
+	cout << "--------------------RESTA DE MATRICES--------------------" << endl;
+	matrix4x4f mRes1 = make_scale(2, 3, 4);
+	matrix4x4f mRes2 = make_scale(1, 2, 3);
+	matrix4x4f mRes = mRes1 - mRes2;
+	cout << "Matriz 1: " << endl;
+	cout << mRes1 << endl;
+	cout << "Matriz 2: " << endl;
+	cout << mRes2 << endl;
+	cout << "Matriz resta: " << endl;
+	cout << mRes << endl;
+
+	cout << "--------------------TRANSPUESTA DE MATRIZ--------------------" << endl;
+	matrix4x4f mTrans = make_scale(2, 3, 4);
+	matrix4x4f mTransp = transpose(mTrans);
+	cout << "Matriz original: " << endl;
+	cout << mTrans << endl;
+	cout << "Matriz transpuesta: " << endl;
+	cout << mTransp << endl;
+
+	cout << "--------------------DETERMINANTE--------------------" << endl;
+	matrix4x4f mDet = make_scale(2, 3, 4);
+	float det = determinant(mDet);
+	cout << "Matriz original: " << endl;
+	cout << mDet << endl;
+	cout << "Determinante: " << det << endl;
+
+	cout << "--------------------INVERSA DE MATRIZ--------------------" << endl;
+	matrix4x4f mInv = make_scale(2, 3, 4);
+	matrix4x4f mInvRes = inverse(mInv);
+	cout << "Matriz original: " << endl;
+	cout << mInv << endl;
+	cout << "Matriz inversa: " << endl;
+	cout << mInvRes << endl;
+
+	cout << "--------------------QUATERNION--------------------" << endl;
+	vector4f q = make_quaternion(1, 2, 3, 45);
+	cout << "Quaternion: " << q << endl;
+
+	cout << "--------------------ROTACION CON QUATERNION--------------------" << endl;
+	matrix4x4f mRotQuat = make_rotate(q);
+	cout << "Matriz de rotacion con quaternion: " << endl;
+	cout << mRotQuat << endl;
+
+
 
 
 
